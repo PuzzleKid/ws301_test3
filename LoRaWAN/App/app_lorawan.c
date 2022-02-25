@@ -81,7 +81,6 @@ void MX_LoRaWAN_Process(void)
   /* USER CODE BEGIN MX_LoRaWAN_Process_1 */
   LmHandlerProcess();
 
-//  unxx_lora_process();
   /* USER CODE END MX_LoRaWAN_Process_1 */
 }
 /* USER CODE END EF */

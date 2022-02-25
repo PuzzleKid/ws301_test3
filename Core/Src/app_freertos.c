@@ -28,6 +28,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "lora_app.h"
+#include "usart.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -37,7 +39,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define	RECEIVE_MAX 128
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -47,7 +49,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-
+static uint8_t rxData[RECEIVE_MAX] = {0};
+static uint16_t rxLen = 0;
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -70,13 +73,6 @@ const osThreadAttr_t systemTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 768 * 4
 };
-/* Definitions for workTask */
-osThreadId_t workTaskHandle;
-const osThreadAttr_t workTask_attributes = {
-  .name = "workTask",
-  .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 256 * 4
-};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -86,7 +82,6 @@ const osThreadAttr_t workTask_attributes = {
 void StartDefaultTask(void *argument);
 void StartNFCTask(void *argument);
 void StartSystemTask(void *argument);
-void StartWorkTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -125,9 +120,6 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of systemTask */
   systemTaskHandle = osThreadNew(StartSystemTask, NULL, &systemTask_attributes);
-
-  /* creation of workTask */
-  workTaskHandle = osThreadNew(StartWorkTask, NULL, &workTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -170,6 +162,7 @@ void StartDefaultTask(void *argument)
 void StartNFCTask(void *argument)
 {
   /* USER CODE BEGIN StartNFCTask */
+
   /* Infinite loop */
   for(;;)
   {
@@ -199,33 +192,42 @@ void StartNFCTask(void *argument)
 void StartSystemTask(void *argument)
 {
   /* USER CODE BEGIN StartSystemTask */
+	HAL_UARTEx_ReceiveToIdle_DMA(&hlpuart1, rxData, RECEIVE_MAX);
+
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+
+//	  if (HAL_UARTEx_ReceiveToIdle(&hlpuart1, pReceive, , &RxLen, 1000) == HAL_OK){
+//		  printf("RxLen:%d\r\n",RxLen);
+//		  printf("UserRxBufferFS: %s\r\n", pReceive);
+//		  memset(pReceive, 0, sizeof(pReceive));
+////		  for(uint8_t i=0;i<RxLen;i++){
+////			  printf("%d",pReceive[i]);
+////		  }
+////		  printf("\r\n");
+//	  }
+
+      if (rxLen)
+      {
+          printf("READ[%s][%d]\n", rxData, rxLen);
+          rxLen = 0;
+      }
+	  osDelay(10);
+
+	  osDelay(10);
+	 // printf("pReceive:%d\r\n",pReceive);
+      osDelay(10);
   }
   /* USER CODE END StartSystemTask */
 }
 
-/* USER CODE BEGIN Header_StartWorkTask */
-/**
-* @brief Function implementing the workTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartWorkTask */
-void StartWorkTask(void *argument)
-{
-  /* USER CODE BEGIN StartWorkTask */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END StartWorkTask */
-}
-
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
-
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+    rxLen = Size;
+    rxData[rxLen] = 0; // 标记字符结尾
+    HAL_UARTEx_ReceiveToIdle_DMA(&hlpuart1, rxData, RECEIVE_MAX); //重启 带空闲中断 DMA接收
+}
 /* USER CODE END Application */

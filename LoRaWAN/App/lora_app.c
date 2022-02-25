@@ -29,6 +29,7 @@
 /* USER CODE BEGIN Includes */
 #include "lora_info.h"
 #include "mw_log_conf.h"
+#include "LmHandlerTypes.h"
 /* USER CODE END Includes */
 
 /* External variables ---------------------------------------------------------*/
@@ -79,6 +80,7 @@ static void OnMacProcessNotify(void);
 
 /* USER CODE BEGIN PFP */
 void SetChannel(void);
+LmHandlerErrorStatus_t LmSetChannel(uint16_t *ChannelsMask);
 /* USER CODE END PFP */
 
 /* Private variables ---------------------------------------------------------*/
@@ -108,6 +110,7 @@ static LmHandlerParams_t LmHandlerParams =
 };
 uint8_t devEUI[]={ 0x00, 0x80, 0xE1, 0x01, 0x01, 0x01, 0x01, 0x01 };
 static ActivationType_t ActivationType = LORAWAN_DEFAULT_ACTIVATION_TYPE;
+static uint16_t ChannelsMask[] = {0xff00,0x00,0x00,0x00,0x00,0x00};
 /* USER CODE END PV */
 
 /* Exported functions ---------------------------------------------------------*/
@@ -117,15 +120,19 @@ void SendTxData(void)
   static uint8_t AppDataBuffer[LORAWAN_APP_DATA_BUFFER_MAX_SIZE];
   static LmHandlerAppData_t AppData = { 0, 0, AppDataBuffer };
   UTIL_TIMER_Time_t nextTxIn = 0;
+  static LmHandlerErrorStatus_t log;
   AppData.Port = 2;
   AppData.BufferSize = 8;
   AppData.Buffer[0] = 0;
   AppData.Buffer[1] = 1;
   AppData.Buffer[2] = 0;
   AppData.Buffer[3] = 1;
-  static LmHandlerErrorStatus_t log;
+
   log = LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, &nextTxIn, true);
-  MY_LOG(TS,VL, "SEND REQUEST:%d\r\n",log);
+  if (log != LORAMAC_HANDLER_SUCCESS){
+	  MW_LOG(TS,VL, "SEND REQUEST:%d\r\n",log);
+  }
+
   if (nextTxIn > 0)
   {
     //APP_LOG(TS_ON, VLEVEL_L, "Next Tx in  : ~%d second(s)\r\n", (nextTxIn / 1000));
@@ -145,7 +152,7 @@ void LoRaWAN_Init(void)
   /* USER CODE BEGIN LoRaWAN_Init_Last */
 
   LmHandlerConfigure(&LmHandlerParams);
-  SetChannel();
+  LmSetChannel(ChannelsMask);
   LmHandlerSetDevEUI(devEUI);
   LmHandlerJoin(ActivationType);
   /* USER CODE END LoRaWAN_Init_Last */
@@ -157,16 +164,37 @@ void LoRaWAN_Init(void)
 
 /* Private functions ---------------------------------------------------------*/
 /* USER CODE BEGIN PrFD */
-void SetChannel(void){
-	MibRequestConfirm_t mibReq;
-	mibReq.Type = MIB_CHANNELS_MASK;
-	static uint16_t UserChannelsMask[] = {0xff00,0x00,0x00,0x00,0x00,0x00};
-	mibReq.Param.ChannelsMask = UserChannelsMask;
-	LoRaMacMibSetRequestConfirm(&mibReq);
+//void SetChannel(void){
+//	MibRequestConfirm_t mibReq;
+//	mibReq.Type = MIB_CHANNELS_MASK;
+//
+//	mibReq.Param.ChannelsMask = UserChannelsMask;
+//	LoRaMacMibSetRequestConfirm(&mibReq);
+//
+//	mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
+//	mibReq.Param.ChannelsDefaultMask = UserChannelsMask;
+//	LoRaMacMibSetRequestConfirm(&mibReq);
+//}
+LmHandlerErrorStatus_t LmSetChannel(uint16_t *ChannelsMask)
+{
+    MibRequestConfirm_t mibReq;
 
-	mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
-	mibReq.Param.ChannelsDefaultMask = UserChannelsMask;
-	LoRaMacMibSetRequestConfirm(&mibReq);
+    /* Not yet joined */
+    if (LmHandlerJoinStatus() != LORAMAC_HANDLER_SET)
+    {
+        mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
+        mibReq.Param.ChannelsMask = ChannelsMask;
+        if (LoRaMacMibSetRequestConfirm(&mibReq) != LORAMAC_STATUS_OK)
+        {
+            return LORAMAC_HANDLER_ERROR;
+        }
+        return LORAMAC_HANDLER_SUCCESS;
+    }
+    else
+    {
+        /* Cannot change Keys in running state */
+        return LORAMAC_HANDLER_ERROR;
+    }
 }
 /* USER CODE END PrFD */
 
