@@ -143,8 +143,9 @@ void LoRaWAN_Init(void)
   LmHandlerInit(&LmHandlerCallbacks);
 
   /* USER CODE BEGIN LoRaWAN_Init_Last */
-  //SetChannel();
+
   LmHandlerConfigure(&LmHandlerParams);
+  SetChannel();
   LmHandlerSetDevEUI(devEUI);
   LmHandlerJoin(ActivationType);
   /* USER CODE END LoRaWAN_Init_Last */

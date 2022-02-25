@@ -415,15 +415,6 @@ LmHandlerErrorStatus_t LmHandlerConfigure( LmHandlerParams_t *handlerParams )
     mibReq.Param.AdrEnable = LmHandlerParams.AdrEnable;
     LoRaMacMibSetRequestConfirm( &mibReq );
 
-    mibReq.Type = MIB_CHANNELS_MASK;
-    static uint16_t UserChannelsMask[] = {0xff00,0x00,0x00,0x00,0x00,0x00};
-    mibReq.Param.ChannelsMask = UserChannelsMask;
-    LoRaMacMibSetRequestConfirm(&mibReq);
-
-    mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
-    mibReq.Param.ChannelsDefaultMask = UserChannelsMask;
-    LoRaMacMibSetRequestConfirm(&mibReq);
-
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
     getPhy.Attribute = PHY_DUTY_CYCLE;

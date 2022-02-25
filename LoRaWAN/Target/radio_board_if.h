@@ -89,10 +89,10 @@ extern "C" {
 
 #else
 /* USER CODE BEGIN Exported PinMapping */
-#define RF_SW_CTRL3_PIN                          GPIO_PIN_7
-#define RF_SW_CTRL3_GPIO_PORT                    GPIOB
-#define RF_SW_CTRL3_GPIO_CLK_ENABLE()
-#define RF_SW_CTRL3_GPIO_CLK_DISABLE()
+//#define RF_SW_CTRL3_PIN                          GPIO_PIN_7
+//#define RF_SW_CTRL3_GPIO_PORT                    GPIOB
+//#define RF_SW_CTRL3_GPIO_CLK_ENABLE()
+//#define RF_SW_CTRL3_GPIO_CLK_DISABLE()
 
 #define RF_SW_CTRL1_PIN                          GPIO_PIN_2
 #define RF_SW_CTRL1_GPIO_PORT                    GPIOB

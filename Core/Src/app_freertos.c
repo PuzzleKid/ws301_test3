@@ -178,7 +178,7 @@ void StartNFCTask(void *argument)
 		  if(HAL_GPIO_ReadPin(SWITCH2_GPIO_Port, SWITCH2_Pin) == SWITCH2_PRESS){
 			 // printf("%d\r\n",uxTaskGetStackHighWaterMark (NULL));
 			  LED_GREEN_TOGGLE;
-//			  SendTxData();
+			  SendTxData();
 			  while(HAL_GPIO_ReadPin(SWITCH2_GPIO_Port, SWITCH2_Pin) == SWITCH2_PRESS){
 				  osDelay(100);
 			  }
