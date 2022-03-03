@@ -44,8 +44,8 @@ _Min_Stack_Size = 0x800 ; /* required amount of stack */
 /* Memories definition */
 MEMORY
 {
-  RAM    (xrw)   : ORIGIN = 0x20000000, LENGTH = 64K
-  RAM2   (xrw)   : ORIGIN = 0x10000000, LENGTH = 32K
+  RAM    (xrw)   : ORIGIN = 0x20000000, LENGTH = 32K
+  RAM2   (xrw)   : ORIGIN = 0x20008000, LENGTH = 32K
   FLASH   (rx)   : ORIGIN = 0x08000000, LENGTH = 256K
 }
 
@@ -173,6 +173,14 @@ SECTIONS
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
   } >RAM
+
+  .mysect (NOLOAD):
+  {
+    . = ALIGN(8);
+    *(.mysect)
+    *(.mysect*)
+    . = ALIGN(8);
+  } >RAM2
 
   /* Remove information from the compiler libraries */
   /DISCARD/ :

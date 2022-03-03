@@ -415,6 +415,10 @@ LmHandlerErrorStatus_t LmHandlerConfigure( LmHandlerParams_t *handlerParams )
     mibReq.Param.AdrEnable = LmHandlerParams.AdrEnable;
     LoRaMacMibSetRequestConfirm( &mibReq );
 
+    mibReq.Type = MIB_ADR;
+    mibReq.Param.AdrEnable = LmHandlerParams.AdrEnable;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
     getPhy.Attribute = PHY_DUTY_CYCLE;

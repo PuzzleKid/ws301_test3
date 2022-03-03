@@ -46,7 +46,14 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+#define log_err(...) printf(__VA_ARGS__)
+#define log(...) printf(__VA_ARGS__)
+#define HEX6(X)   X[0], X[1], X[2], X[3], X[4], X[5]
+#define HEX8(X)   X[0], X[1], X[2], X[3], X[4], X[5], X[6], X[7]
+#define HEX16(X)  HEX8(X), X[8], X[9], X[10], X[11], X[12], X[13], X[14], X[15]
+//#define FORMAT6(a)		a:a:a:a:a:a:
+//#define FORMAT8(a)		a:a:a:a:a:a:a:a
+//#define FORMAT16(a)		FORMAT8(a):FORMAT8(a)
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

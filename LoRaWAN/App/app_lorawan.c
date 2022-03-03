@@ -38,7 +38,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+void ws301Process(void);
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -50,6 +50,23 @@
 
 /* USER CODE BEGIN PV */
 
+//void newProcessReq(){
+//	processRequest_t msg_ptr = {
+//			.RequestType = StatusReserved;
+//			.processParam
+//		    union
+//		    {
+//		    	ActivationType_t ActivationType;
+//		    	struct
+//				{
+//		        	LmHandlerAppData_t *SendData;
+//		        	LmHandlerMsgTypes_t MsgType;
+//		        	bool allowDelayedTx;
+//		    	}SendPacket;
+//
+//		    }processParam;
+//	};
+//}
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,7 +96,8 @@ void MX_LoRaWAN_Init(void)
 void MX_LoRaWAN_Process(void)
 {
   /* USER CODE BEGIN MX_LoRaWAN_Process_1 */
-  LmHandlerProcess();
+
+	LmHandlerProcess();
 
   /* USER CODE END MX_LoRaWAN_Process_1 */
 }
