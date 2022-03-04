@@ -337,13 +337,23 @@ static void OnJoinRequest(LmHandlerJoinParams_t *joinParams)
 	if(joinParams->Status == 0){
 		if (LmHandlerDeviceTimeReq() == LORAMAC_HANDLER_SUCCESS){
 			log("DeviceTimeReq SUCCESS\r\n");
-			uint8_t Buffer[1] = {11};
-			LmHandlerAppData_t appData = {2,1,Buffer};
-			TimerTime_t nextTxIn;
-			LmHandlerErrorStatus_t log = LmHandlerSend(&appData, LORAMAC_HANDLER_CONFIRMED_MSG, &nextTxIn, false);
-			if (log != LORAMAC_HANDLER_SUCCESS){
-				MW_LOG(TS,VL, "SEND REQUEST:%d\r\n",log);
+			processRequest_t msg = {0};
+			msg.RequestType = MSG_SEND;
+			msg.param.SendPacket.MsgType = LORAMAC_HANDLER_CONFIRMED_MSG;
+			msg.param.SendPacket.Port = 2;
+			msg.param.SendPacket.BufferSize = 1;
+			msg.param.SendPacket.Buffer[0] = 0x40;
+			extern osMessageQueueId_t processQueueHandle;
+			if (osMessageQueuePut (processQueueHandle, &msg, 0, 0) != osOK){
+				log_err("OnJoinRequest put msg fail\r\n");
 			}
+//			uint8_t Buffer[1] = {0x33};
+//			LmHandlerAppData_t appData = {2,1,Buffer};
+//			TimerTime_t nextTxIn;
+//			LmHandlerErrorStatus_t log = LmHandlerSend(&appData, LORAMAC_HANDLER_CONFIRMED_MSG, &nextTxIn, false);
+//			if (log != LORAMAC_HANDLER_SUCCESS){
+//				MW_LOG(TS,VL, "SEND REQUEST:%d\r\n",log);
+//			}
 		}else{
 			log_err("DeviceTimeReq ERROR\r\n");
 		}

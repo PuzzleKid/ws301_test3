@@ -29,6 +29,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "LmHandlerTypes.h"
+#include "app_lorawan.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
