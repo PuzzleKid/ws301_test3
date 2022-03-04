@@ -114,6 +114,9 @@ uint8_t devEUI_r[]={ 0 };
 static uint16_t defChannelsMask[] = {0xff00,0x0000,0x0000,0x0000,0x0000,0x0000};
 static uint16_t channelsMask[] = {0xff00,0x0000,0x0000,0x0000,0x0000,0x0000};
 static uint16_t Channel[6]={ 0 };
+
+
+
 /* USER CODE END PV */
 
 /* Exported functions ---------------------------------------------------------*/
@@ -188,12 +191,6 @@ void LoRaWAN_Init(void)
 	}else{
 		log("###### DeChannelMask:  %04X:%04X:%04X:%04X:%04X:%04X\r\n",HEX6(Channel));
 	}
-
-//	if (LmHandlerDeviceTimeReq() == LORAMAC_HANDLER_SUCCESS){
-//	  log("DeviceTimeReq SUCCESS\r\n");
-//	}else{
-//	  log_err("DeviceTimeReq ERROR\r\n");
-//	}
 
 	LmHandlerJoin(ACTIVATION_TYPE_OTAA);
 
@@ -318,18 +315,45 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 static void OnTxData(LmHandlerTxParams_t *params)
 {
   /* USER CODE BEGIN OnTxData_1 */
+	log("%s\r\n",__FUNCTION__);
+	log("Params->Datarate:%d\r\n",params->Datarate);
+	log("Params->Status:%d\r\n",params->Status);
+	log("Params->Channel:%d\r\n",params->Channel);
+    printf("Params->AppData:");
+    for(uint8_t i = 0; i < params->AppData.BufferSize; i++) {
+    	printf("%02X ",params->AppData.Buffer[i]);
+    }
+    printf("\r\n");
   /* USER CODE END OnTxData_1 */
 }
 
 static void OnJoinRequest(LmHandlerJoinParams_t *joinParams)
 {
   /* USER CODE BEGIN OnJoinRequest_1 */
+	log("%s\r\n",__FUNCTION__);
+	log("joinParams->Datarate:%d\r\n",joinParams->Datarate);
+	log("joinParams->Status:%d\r\n",joinParams->Status);
+	log("joinParams->Mode:%d\r\n",joinParams->Mode);
+	if(joinParams->Status == 0){
+		if (LmHandlerDeviceTimeReq() == LORAMAC_HANDLER_SUCCESS){
+			log("DeviceTimeReq SUCCESS\r\n");
+			uint8_t Buffer[1] = {11};
+			LmHandlerAppData_t appData = {2,1,Buffer};
+			TimerTime_t nextTxIn;
+			LmHandlerErrorStatus_t log = LmHandlerSend(&appData, LORAMAC_HANDLER_CONFIRMED_MSG, &nextTxIn, false);
+			if (log != LORAMAC_HANDLER_SUCCESS){
+				MW_LOG(TS,VL, "SEND REQUEST:%d\r\n",log);
+			}
+		}else{
+			log_err("DeviceTimeReq ERROR\r\n");
+		}
+	}
   /* USER CODE END OnJoinRequest_1 */
 }
 
 static void OnMacProcessNotify(void)
 {
   /* USER CODE BEGIN OnMacProcessNotify_1 */
-
+	log("%s\r\n",__FUNCTION__);
   /* USER CODE END OnMacProcessNotify_1 */
 }

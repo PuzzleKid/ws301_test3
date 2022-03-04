@@ -34,6 +34,7 @@
 #include "cJSON.h"
 #include <stdlib.h>
 #include "event_log.h"
+#include "LoRaMac.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -248,7 +249,7 @@ void ws301Process(void){
 
 	LmHandlerErrorStatus_t errStatus;
 
-	if (osMessageQueueGetCount (processQueueHandle) != 0){
+	if ((osMessageQueueGetCount (processQueueHandle) != 0) && (LoRaMacIsReq() == false) ){
 
 		result = osMessageQueueGet (processQueueHandle, &msg_ptr, NULL, 0);
 		if(result != osOK){
@@ -395,11 +396,14 @@ void ws301Process(void){
 					log("LmHandlerStop\r\n");
 				}
 				break;
-//			case MSG_WRITE_JSON:
-//				if (LmHandlerDeviceTimeReq() != LORAMAC_HANDLER_SUCCESS){
-//				  MW_LOG(TS,VL,"DeviceTimeReq ERROR\r\n");
-//				}
-//				break;
+			case MSG_DEV_TIME:
+				if (LmHandlerDeviceTimeReq() == LORAMAC_HANDLER_SUCCESS){
+					log("DeviceTimeReq SUCCESS\r\n");
+				}else{
+					log_err("DeviceTimeReq ERROR\r\n");
+				}
+				break;
+
 			case MSG_RESERVED:
 				break;
 			default:
@@ -543,12 +547,8 @@ void serialProcess(void){
 					  msg.RequestType = MSG_STOP;
 					  break;
 				  case CMD_DEV_TIME:
-					  if (LmHandlerDeviceTimeReq() == LORAMAC_HANDLER_SUCCESS){
-					  	  log("DeviceTimeReq SUCCESS\r\n");
-					  }else{
-						  log_err("DeviceTimeReq ERROR\r\n");
-					  }
-					break;
+					  msg.RequestType = MSG_DEV_TIME;
+					  break;
 				  case CMD_GET_TIME:
 					  sysTime = SysTimeGet();
 					  log("sysTime:%lu\r\n",sysTime.Seconds);

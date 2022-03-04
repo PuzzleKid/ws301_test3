@@ -93,6 +93,7 @@ typedef struct processRequest
 		MSG_CHANNEL 	= 13,
 		MSG_ADR			= 14,
 		MSG_STOP		= 16,
+		MSG_DEV_TIME	= 20,
 		MSG_RESERVED          		= 255
     }RequestType;
 

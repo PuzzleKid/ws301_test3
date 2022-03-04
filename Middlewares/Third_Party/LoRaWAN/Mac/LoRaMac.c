@@ -1366,6 +1366,15 @@ bool LoRaMacIsBusy( void )
     return true;
 }
 
+bool LoRaMacIsReq( void )
+{
+    if( ( MacCtx.MacState == LORAMAC_IDLE || MacCtx.MacState == LORAMAC_STOPPED) &&
+        ( MacCtx.AllowRequests == LORAMAC_REQUEST_HANDLING_ON ) )
+    {
+        return false;
+    }
+    return true;
+}
 
 static void LoRaMacEnableRequests( LoRaMacRequestHandling_t requestState )
 {
