@@ -159,21 +159,21 @@ void LoRaWAN_Init(void)
   /* USER CODE BEGIN LoRaWAN_Init_Last */
 
 
-  if (LmHandlerConfigure(&LmHandlerParams) != LORAMAC_HANDLER_SUCCESS){
-	  MW_LOG(TS,VL,"LmHandlerConfigure ERROR\r\n");
-  }
-  if (LmHandlerSetDevEUI(devEUI) != LORAMAC_HANDLER_SUCCESS){
-	  MW_LOG(TS,VL,"SetDevEUI ERROR\r\n");
-  }
+	if (LmHandlerConfigure(&LmHandlerParams) != LORAMAC_HANDLER_SUCCESS){
+		MW_LOG(TS,VL,"LmHandlerConfigure ERROR\r\n");
+	}
 
+	if (LmHandlerSetDevEUI(devEUI) != LORAMAC_HANDLER_SUCCESS){
+		MW_LOG(TS,VL,"SetDevEUI ERROR\r\n");
+	}
 
-  LmHandlerGetDevEUI(devEUI_r);
-  MW_LOG(TS_OFF, VLEVEL_M, "###### DevEui:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",
-         HEX8(devEUI_r));
+	LmHandlerGetDevEUI(devEUI_r);
+	MW_LOG(TS_OFF, VLEVEL_M, "###### DevEui:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+		 HEX8(devEUI_r));
+
 	if (LmSetDefaultChannelMask(defChannelsMask) != LORAMAC_HANDLER_SUCCESS){
 	  MW_LOG(TS,VL,"SetChannel ERROR\r\n");
 	}
-
 	if (LmGetDefaultChannelMask(Channel) != LORAMAC_HANDLER_SUCCESS){
 		log_err("GetDefChannel fail:\r\n");
 	}else{
@@ -189,11 +189,20 @@ void LoRaWAN_Init(void)
 		log("###### DeChannelMask:  %04X:%04X:%04X:%04X:%04X:%04X\r\n",HEX6(Channel));
 	}
 
+//	if (LmHandlerDeviceTimeReq() == LORAMAC_HANDLER_SUCCESS){
+//	  log("DeviceTimeReq SUCCESS\r\n");
+//	}else{
+//	  log_err("DeviceTimeReq ERROR\r\n");
+//	}
+
+	LmHandlerJoin(ACTIVATION_TYPE_OTAA);
+
+
 //  LmHandlerConfigure(&LmHandlerParams);
 //  LmSetChannel(ChannelsMask);
 //  LmHandlerSetDevEUI(devEUI);
 
-//  LmHandlerJoin(ActivationType);
+
   /* USER CODE END LoRaWAN_Init_Last */
 }
 

@@ -51,6 +51,11 @@ extern "C" {
 #define HEX6(X)   X[0], X[1], X[2], X[3], X[4], X[5]
 #define HEX8(X)   X[0], X[1], X[2], X[3], X[4], X[5], X[6], X[7]
 #define HEX16(X)  HEX8(X), X[8], X[9], X[10], X[11], X[12], X[13], X[14], X[15]
+#define printf_arr(name,data,len) do{printf(""#name":");\
+		  for (uint8_t i=0;i<len;i++){\
+			  printf("%02X ", data[i]);\
+		  }\
+		  printf("\r\n");}while(0)
 //#define FORMAT6(a)		a:a:a:a:a:a:
 //#define FORMAT8(a)		a:a:a:a:a:a:a:a
 //#define FORMAT16(a)		FORMAT8(a):FORMAT8(a)
@@ -94,12 +99,12 @@ void Error_Handler(void);
 
 #define SWITCH2_RELEASE GPIO_PIN_SET
 #define SWITCH2_PRESS GPIO_PIN_RESET
-#define LED_RED_ON HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET)
-#define LED_RED_OFF HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET)
-#define LED_RED_TOGGLE HAL_GPIO_TogglePin(LED_RED_GPIO_Port,LED_RED_Pin)
-#define LED_GREEN_ON HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET)
-#define LED_GREEN_OFF HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET)
-#define LED_GREEN_TOGGLE HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port,LED_GREEN_Pin)
+#define LED_RED_ON() HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET)
+#define LED_RED_OFF() HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET)
+#define LED_RED_TOGGLE() HAL_GPIO_TogglePin(LED_RED_GPIO_Port,LED_RED_Pin)
+#define LED_GREEN_ON() HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET)
+#define LED_GREEN_OFF() HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET)
+#define LED_GREEN_TOGGLE() HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port,LED_GREEN_Pin)
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

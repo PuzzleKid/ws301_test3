@@ -65,9 +65,13 @@ typedef enum {
 	CMD_NWK_SKEY 	= 11,
 	CMD_DEFAULT_CHANNEL	= 12,
 	CMD_CHANNEL 	= 13,
-	CMD_ADR			=14,
-	CMD_READ_JSON	=64
-}TYPE_PROCESS;
+	CMD_ADR			= 14,
+	CMD_STOP		= 16,
+	CMD_DEV_TIME	= 20,
+	CMD_GET_TIME	= 21,
+	CMD_GET_MCUTIME	= 22,
+	CMD_READ_JSON	= 64
+}cmdType_t;
 
 typedef struct processRequest
 {
@@ -87,8 +91,8 @@ typedef struct processRequest
 		MSG_NWK_SKEY 	= 11,
 		MSG_DEFAULT_CHANNEL	= 12,
 		MSG_CHANNEL 	= 13,
-		MSG_ADR			=14,
-		MSG_READ_JSON	= 64,
+		MSG_ADR			= 14,
+		MSG_STOP		= 16,
 		MSG_RESERVED          		= 255
     }RequestType;
 
@@ -112,8 +116,6 @@ typedef struct processRequest
     	uint16_t defChannel[6];
     	uint16_t channel[6];
     	uint8_t adrEnable;
-
-
     } param;
 } processRequest_t;
 /* USER CODE END ET */

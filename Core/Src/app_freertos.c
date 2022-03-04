@@ -33,15 +33,12 @@
 #include "time.h"
 #include "cJSON.h"
 #include <stdlib.h>
+#include "event_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define printf_arr(name,data,len) do{printf(""#name":");\
-		  for (uint8_t i=0;i<len;i++){\
-			  printf("%02X ", data[i]);\
-		  }\
-		  printf("\r\n");}while(0)
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -58,6 +55,7 @@
 /* USER CODE BEGIN Variables */
 static uint8_t rxData[RECEIVE_MAX] = {0};
 static uint16_t rxLen = 0;
+eventLog_t evelog;
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -178,6 +176,7 @@ void StartDefaultTask(void *argument)
 * @retval None
 */
 /* USER CODE END Header_StartNFCTask */
+
 void StartNFCTask(void *argument)
 {
   /* USER CODE BEGIN StartNFCTask */
@@ -185,14 +184,20 @@ void StartNFCTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
+
 	  if(HAL_GPIO_ReadPin(SWITCH2_GPIO_Port, SWITCH2_Pin) == SWITCH2_PRESS){
 		  osDelay(10);
 		  if(HAL_GPIO_ReadPin(SWITCH2_GPIO_Port, SWITCH2_Pin) == SWITCH2_PRESS){
-			 // printf("%d\r\n",uxTaskGetStackHighWaterMark (NULL));
-			  LED_GREEN_TOGGLE;
+			  LED_GREEN_TOGGLE();
+			  evelog.time = SysTimeGet().Seconds;
+			  evelog.event = BUTTON_PREES;
+			  log_write(evelog);
 			  while(HAL_GPIO_ReadPin(SWITCH2_GPIO_Port, SWITCH2_Pin) == SWITCH2_PRESS){
 				  osDelay(100);
 			  }
+			  evelog.time = SysTimeGet().Seconds;
+			  evelog.event = BUTTON_RELEASE;
+			  log_write(evelog);
 		  }
 	  }
 	  osDelay(10);
@@ -215,7 +220,6 @@ void StartSystemTask(void *argument)
   for(;;)
   {
 	  serialProcess();
-
       osDelay(10);
   }
   /* USER CODE END StartSystemTask */
@@ -238,8 +242,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 void ws301Process(void){
 	static osStatus_t result;
 	static processRequest_t msg_ptr;
-//	static char *buffer = NULL;
-//	static cJSON* cjson_test = NULL;
 	static uint8_t Buffer[256] = {0};
 	static LmHandlerAppData_t appData = {0,0,Buffer};
 	static TimerTime_t nextTxIn = 0;
@@ -289,24 +291,24 @@ void ws301Process(void){
 				}else{
 					log("###### AppEui:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",HEX8(msg_ptr.param.appEUI));
 				}
-//				errStatus = LmHandlerGetAppKey(appKey);
-//				if (errStatus != LORAMAC_HANDLER_SUCCESS){
-//					log_err("GetAppKey fail:%d\r\n",errStatus);
-//				}else{
-//					log("###### AppKey:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",HEX16(appKey));
-//				}
-//				errStatus = LmHandlerGetAppSKey(appSKey);
-//				if (errStatus != LORAMAC_HANDLER_SUCCESS){
-//					log_err("GetAppSKey fail:%d\r\n",errStatus);
-//				}else{
-//					log("###### AppSKey:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",HEX16(appSKey));
-//				}
-//				errStatus = LmHandlerGetNwkSKey(appSKey);
-//				if (errStatus != LORAMAC_HANDLER_SUCCESS){
-//					log_err("GetNwkSKey fail:%d\r\n",errStatus);
-//				}else{
-//					log("###### NwkSKey:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",HEX16(nwkSKey));
-//				}
+				errStatus = LmHandlerGetNwkKey(msg_ptr.param.appKey);//AppKey->NwkKey
+				if (errStatus != LORAMAC_HANDLER_SUCCESS){
+					log_err("GetAppKey fail:%d\r\n",errStatus);
+				}else{
+					log("###### AppKey:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",HEX16(msg_ptr.param.appKey));
+				}
+				errStatus = LmHandlerGetAppSKey(msg_ptr.param.appSKey);
+				if (errStatus != LORAMAC_HANDLER_SUCCESS){
+					log_err("GetAppSKey fail:%d\r\n",errStatus);
+				}else{
+					log("###### AppSKey:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",HEX16(msg_ptr.param.appSKey));
+				}
+				errStatus = LmHandlerGetNwkSKey(msg_ptr.param.nwkSKey);
+				if (errStatus != LORAMAC_HANDLER_SUCCESS){
+					log_err("GetNwkSKey fail:%d\r\n",errStatus);
+				}else{
+					log("###### NwkSKey:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",HEX16(msg_ptr.param.nwkSKey));
+				}
 				errStatus = LmGetDefaultChannelMask(msg_ptr.param.defChannel);
 				if (errStatus != LORAMAC_HANDLER_SUCCESS){
 					log_err("GetDefChannel fail:%d\r\n",errStatus);
@@ -334,7 +336,6 @@ void ws301Process(void){
 				if (errStatus != LORAMAC_HANDLER_SUCCESS){
 					log_err("SetDevEUI fail:%d\r\n",errStatus);
 				}else{
-					uint8_t devEUI_test[8] = {0x00,0x80,0xE1,0x01,0x01,0x01,0x01,0x02};
 					log("SetDevEUI:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",HEX8(msg_ptr.param.devEUI));
 				}
 				break;
@@ -347,7 +348,7 @@ void ws301Process(void){
 				}
 				break;
 			case MSG_APP_KEY:
-				errStatus = LmHandlerSetAppKey(msg_ptr.param.appKey);
+				errStatus = LmHandlerSetNwkKey(msg_ptr.param.appKey);
 				if (errStatus != LORAMAC_HANDLER_SUCCESS){
 					log_err("SetAppKey fail:%d\r\n",errStatus);
 				}else{
@@ -386,17 +387,18 @@ void ws301Process(void){
 					log("SetChannel:%04X:%04X:%04X:%04X:%04X:%04X\r\n",HEX6(msg_ptr.param.channel));
 				}
 				break;
+			case MSG_STOP:
+				errStatus = LmHandlerStop();
+				if (errStatus != LORAMAC_HANDLER_SUCCESS){
+					log_err("LmHandlerStop fail:%d\r\n",errStatus);
+				}else{
+					log("LmHandlerStop\r\n");
+				}
+				break;
 //			case MSG_WRITE_JSON:
-//				cjson_test = cJSON_CreateObject();
-//				cJSON_AddStringToObject(cjson_test,"name","Alpha");
-//				cJSON_AddStringToObject(cjson_test,"conutry","China");
-//				cJSON_AddStringToObject(cjson_test,"city","Luoyang");
-//				buffer = cJSON_Print(cjson_test);
-//				log("cjson_test: %s\r\n", buffer);
-//				if (buffer != NULL){
-//					free(buffer);
+//				if (LmHandlerDeviceTimeReq() != LORAMAC_HANDLER_SUCCESS){
+//				  MW_LOG(TS,VL,"DeviceTimeReq ERROR\r\n");
 //				}
-//				cJSON_Delete(cjson_test);
 //				break;
 			case MSG_RESERVED:
 				break;
@@ -417,6 +419,8 @@ void serialProcess(void){
       if (rxLen > 3){
       	  if (rxData[0]==0x7e && rxData[2]==(rxLen-4) && rxData[rxLen-1]==0x7e){
       		  processRequest_t msg = {0};
+      		  SysTime_t sysTime = {0};
+      		  SysTime_t mcuTime = {0};
       		  switch(rxData[1]){
 
 				  case CMD_JOIN_ABP:
@@ -445,8 +449,7 @@ void serialProcess(void){
 					  msg.param.SendPacket.Port = 2;
 					  msg.param.SendPacket.BufferSize = rxData[2];
 					  memcpy1( msg.param.SendPacket.Buffer, &rxData[3], rxData[2] );
-//					  printf("msg.param.SendPacket.BufferSize:%d\r\n",msg.param.SendPacket.BufferSize);
-//					  printf("msg.param.SendPacket.Buffer:%d\r\n",msg.param.SendPacket.Buffer[0]);
+
 					  break;
 				  case CMD_READ_CONFIG:
 					  log("CMD_READ_CONFIG\r\n");
@@ -535,12 +538,31 @@ void serialProcess(void){
 						  log_err("cmd err\r\n");
 					  }
 					  break;
-//				  case CMD_READ_JSON:
-//					  log("TYPE_WRITE_JSON\r\n");
-//					  msg.RequestType = MSG_WRITE_JSON;
-//					  break;
+				  case CMD_STOP:
+					  log("CMD_STOP\r\n");
+					  msg.RequestType = MSG_STOP;
+					  break;
+				  case CMD_DEV_TIME:
+					  if (LmHandlerDeviceTimeReq() == LORAMAC_HANDLER_SUCCESS){
+					  	  log("DeviceTimeReq SUCCESS\r\n");
+					  }else{
+						  log_err("DeviceTimeReq ERROR\r\n");
+					  }
+					break;
+				  case CMD_GET_TIME:
+					  sysTime = SysTimeGet();
+					  log("sysTime:%lu\r\n",sysTime.Seconds);
+					  break;
+				  case CMD_GET_MCUTIME:
+					  mcuTime = SysTimeGetMcuTime();
+					  log("mcuTime:%lu\r\n",mcuTime.Seconds);
+					  break;
+				  case CMD_READ_JSON:
+					  log("READ_JSON\r\n");
+					  log_print();
+					  break;
 				  default :
-					  msg.RequestType = MSG_RESERVED;
+					  log_err("cmd err\r\n");
 					  break;
 
 
@@ -550,8 +572,6 @@ void serialProcess(void){
 				  if (result != osOK){
 						log_err("put msg fail:%d\r\n",result);
 				  }
-      		  }else{
-      			log_err("cmd err\r\n");
       		  }
 
       	  }
