@@ -385,15 +385,15 @@ LmHandlerErrorStatus_t LmHandlerConfigure( LmHandlerParams_t *handlerParams )
     mibReq.Param.DevAddr = CommissioningParams.DevAddr;
     LoRaMacMibSetRequestConfirm(&mibReq);
 
-    MW_LOG(TS_OFF, VLEVEL_M, "###### DevEui:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",
-           HEX8(CommissioningParams.DevEui));
-    MW_LOG(TS_OFF, VLEVEL_M, "###### AppEui:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",
-           HEX8(CommissioningParams.JoinEui));
-    MW_LOG(TS_OFF, VLEVEL_M, "###### DevAddr: %02X:%02X:%02X:%02X\r\n",
-           (unsigned)((unsigned char *)(&CommissioningParams.DevAddr))[3],
-           (unsigned)((unsigned char *)(&CommissioningParams.DevAddr))[2],
-           (unsigned)((unsigned char *)(&CommissioningParams.DevAddr))[1],
-           (unsigned)((unsigned char *)(&CommissioningParams.DevAddr))[0]);
+//    MW_LOG(TS_OFF, VLEVEL_M, "###### DevEui:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+//           HEX8(CommissioningParams.DevEui));
+//    MW_LOG(TS_OFF, VLEVEL_M, "###### AppEui:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+//           HEX8(CommissioningParams.JoinEui));
+//    MW_LOG(TS_OFF, VLEVEL_M, "###### DevAddr: %02X:%02X:%02X:%02X\r\n",
+//           (unsigned)((unsigned char *)(&CommissioningParams.DevAddr))[3],
+//           (unsigned)((unsigned char *)(&CommissioningParams.DevAddr))[2],
+//           (unsigned)((unsigned char *)(&CommissioningParams.DevAddr))[1],
+//           (unsigned)((unsigned char *)(&CommissioningParams.DevAddr))[0]);
 
 #if (defined (LORAWAN_KMS) && (LORAWAN_KMS == 1))
     MW_LOG(TS_OFF, VLEVEL_L, "###### KMS ENABLED \r\n");
@@ -415,14 +415,9 @@ LmHandlerErrorStatus_t LmHandlerConfigure( LmHandlerParams_t *handlerParams )
     mibReq.Param.AdrEnable = LmHandlerParams.AdrEnable;
     LoRaMacMibSetRequestConfirm( &mibReq );
 
-    mibReq.Type = MIB_CHANNELS_MASK;
-    static uint16_t UserChannelsMask[] = {0xff00,0x00,0x00,0x00,0x00,0x00};
-    mibReq.Param.ChannelsMask = UserChannelsMask;
-    LoRaMacMibSetRequestConfirm(&mibReq);
-
-    mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
-    mibReq.Param.ChannelsDefaultMask = UserChannelsMask;
-    LoRaMacMibSetRequestConfirm(&mibReq);
+    mibReq.Type = MIB_ADR;
+    mibReq.Param.AdrEnable = LmHandlerParams.AdrEnable;
+    LoRaMacMibSetRequestConfirm( &mibReq );
 
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;

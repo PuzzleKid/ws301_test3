@@ -63,7 +63,7 @@ extern "C" {
   * \note this value should be disabled after the development process
   */
 /* USER CODE BEGIN KEY_EXTRACTABLE */
-#define KEY_EXTRACTABLE                                 0
+#define KEY_EXTRACTABLE                                 1
 /* USER CODE END KEY_EXTRACTABLE */
 
 /*!

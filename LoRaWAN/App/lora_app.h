@@ -28,7 +28,8 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "LmHandlerTypes.h"
+#include "app_lorawan.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -101,7 +102,10 @@ extern "C" {
 void LoRaWAN_Init(void);
 
 /* USER CODE BEGIN EFP */
-void SendTxData(void);
+LmHandlerErrorStatus_t LmGetDefaultChannelMask(uint16_t *ChannelsMask);
+LmHandlerErrorStatus_t LmSetDefaultChannelMask(uint16_t *ChannelsMask);
+LmHandlerErrorStatus_t LmGetChannelMask(uint16_t *ChannelsMask);
+LmHandlerErrorStatus_t LmSetChannelMask(uint16_t *ChannelsMask);
 /* USER CODE END EFP */
 
 #ifdef __cplusplus
