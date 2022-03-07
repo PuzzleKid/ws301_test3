@@ -10,7 +10,7 @@
 #include "stdint.h"
 
 
-typedef enum event_s{
+typedef enum event_e{
 	BUTTON_PREES	= 0,
 	BUTTON_RELEASE	= 1
 }event_t;
@@ -22,7 +22,7 @@ typedef struct eventLog_s{
 
 
 void log_write(eventLog_t event);
-void log_print();
+void log_print(viod);
 
 
 
