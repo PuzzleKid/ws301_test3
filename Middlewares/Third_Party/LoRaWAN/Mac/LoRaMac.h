@@ -2542,6 +2542,10 @@ LoRaMacStatus_t LoRaMacStop( void );
  */
 bool LoRaMacIsBusy( void );
 
+
+bool LoRaMacIsReq( void );
+
+
 /*!
  * Processes the LoRaMac events.
  *
