@@ -299,12 +299,17 @@ LmHandlerErrorStatus_t LmGetChannelMask(uint16_t *ChannelsMask)
 static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 {
   /* USER CODE BEGIN OnRxData_1 */
+  log("%s\r\n",__FUNCTION__);
+	if (appData == NULL){
+		log("OnRxData:appData == NULL \r\n");
+	}else{
     printf("RxDoneParams.Size:%d\r\n",appData->BufferSize);
     printf("RxDoneParams.Payload:");
     for(uint8_t i = 0; i < appData->BufferSize; i++) {
     	printf("%02X ",appData->Buffer[i]);
     }
     printf("\r\n");
+  }
   /* USER CODE END OnRxData_1 */
 }
 
@@ -316,14 +321,19 @@ static void OnTxData(LmHandlerTxParams_t *params)
 {
   /* USER CODE BEGIN OnTxData_1 */
 	log("%s\r\n",__FUNCTION__);
-	log("Params->Datarate:%d\r\n",params->Datarate);
-	log("Params->Status:%d\r\n",params->Status);
-	log("Params->Channel:%d\r\n",params->Channel);
-    printf("Params->AppData:");
-    for(uint8_t i = 0; i < params->AppData.BufferSize; i++) {
-    	printf("%02X ",params->AppData.Buffer[i]);
-    }
-    printf("\r\n");
+	if (params == NULL){
+		log("OnTxData:params == NULL \r\n");
+	}else{
+		log("Params->Datarate:%d\r\n",params->Datarate);
+		log("Params->Status:%d\r\n",params->Status);
+		log("Params->Channel:%d\r\n",params->Channel);
+	    printf("Params->AppData:");
+	    for(uint8_t i = 0; i < params->AppData.BufferSize; i++) {
+	    	printf("%02X ",params->AppData.Buffer[i]);
+	    }
+	    printf("\r\n");
+	}
+
   /* USER CODE END OnTxData_1 */
 }
 
@@ -331,31 +341,35 @@ static void OnJoinRequest(LmHandlerJoinParams_t *joinParams)
 {
   /* USER CODE BEGIN OnJoinRequest_1 */
 	log("%s\r\n",__FUNCTION__);
-	log("joinParams->Datarate:%d\r\n",joinParams->Datarate);
-	log("joinParams->Status:%d\r\n",joinParams->Status);
-	log("joinParams->Mode:%d\r\n",joinParams->Mode);
-	if(joinParams->Status == 0){
-		if (LmHandlerDeviceTimeReq() == LORAMAC_HANDLER_SUCCESS){
-			log("DeviceTimeReq SUCCESS\r\n");
-			processRequest_t msg = {0};
-			msg.RequestType = MSG_SEND;
-			msg.param.SendPacket.MsgType = LORAMAC_HANDLER_CONFIRMED_MSG;
-			msg.param.SendPacket.Port = 2;
-			msg.param.SendPacket.BufferSize = 1;
-			msg.param.SendPacket.Buffer[0] = 0x40;
-			extern osMessageQueueId_t processQueueHandle;
-			if (osMessageQueuePut (processQueueHandle, &msg, 0, 0) != osOK){
-				log_err("OnJoinRequest put msg fail\r\n");
+	if (joinParams == NULL){
+		log("OnJoinRequest:params == NULL \r\n");
+	}else{
+		log("joinParams->Datarate:%d\r\n",joinParams->Datarate);
+		log("joinParams->Status:%d\r\n",joinParams->Status);
+		log("joinParams->Mode:%d\r\n",joinParams->Mode);
+		if(joinParams->Status == 0){
+			if (LmHandlerDeviceTimeReq() == LORAMAC_HANDLER_SUCCESS){
+				log("DeviceTimeReq SUCCESS\r\n");
+				processRequest_t msg = {0};
+				msg.RequestType = MSG_SEND;
+				msg.param.SendPacket.MsgType = LORAMAC_HANDLER_CONFIRMED_MSG;
+				msg.param.SendPacket.Port = 2;
+				msg.param.SendPacket.BufferSize = 1;
+				msg.param.SendPacket.Buffer[0] = 0x40;
+				extern osMessageQueueId_t processQueueHandle;
+				if (osMessageQueuePut (processQueueHandle, &msg, 0, 0) != osOK){
+					log_err("OnJoinRequest put msg fail\r\n");
+				}
+		//			uint8_t Buffer[1] = {0x33};
+		//			LmHandlerAppData_t appData = {2,1,Buffer};
+		//			TimerTime_t nextTxIn;
+		//			LmHandlerErrorStatus_t log = LmHandlerSend(&appData, LORAMAC_HANDLER_CONFIRMED_MSG, &nextTxIn, false);
+		//			if (log != LORAMAC_HANDLER_SUCCESS){
+		//				MW_LOG(TS,VL, "SEND REQUEST:%d\r\n",log);
+		//			}
+			}else{
+				log_err("DeviceTimeReq ERROR\r\n");
 			}
-//			uint8_t Buffer[1] = {0x33};
-//			LmHandlerAppData_t appData = {2,1,Buffer};
-//			TimerTime_t nextTxIn;
-//			LmHandlerErrorStatus_t log = LmHandlerSend(&appData, LORAMAC_HANDLER_CONFIRMED_MSG, &nextTxIn, false);
-//			if (log != LORAMAC_HANDLER_SUCCESS){
-//				MW_LOG(TS,VL, "SEND REQUEST:%d\r\n",log);
-//			}
-		}else{
-			log_err("DeviceTimeReq ERROR\r\n");
 		}
 	}
   /* USER CODE END OnJoinRequest_1 */
